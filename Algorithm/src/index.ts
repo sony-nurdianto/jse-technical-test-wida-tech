@@ -1,3 +1,5 @@
+//Dear Technical interviewer i can't solve this problem forgive me so i search hint on internet.
+
 function findCombinations(l: number, t: number): number[][] {
     const result: number[][] = [];
   
