@@ -34,7 +34,7 @@ class UploadFile {
       let dataSuccessProduct: any[] = [];
 
       await Promise.all(
-        [...jsonDataInvoices.map(async (invoiceData: any) => {
+        jsonDataInvoices.map(async (invoiceData: any) => {
           try {
             
             const invoice = await Invoices.create(invoiceData, {validate: true});
@@ -64,34 +64,39 @@ class UploadFile {
             dataErrorInvoice.push(data);
             return;
           }
-        }) , ... jsonDataProducts.map(async (productData: any, index: number ,arr: any[]) => {
-            try {
-              const product = await Products.create(productData, {validate: false});
-              return ;
-            } catch (error:any) {
-                console.log(error);
-              let data = {
-                  data_input: {},
-                  log_error: <any>[],
-                };
-                let log: any[] = [];
-                log.push(error.parent.sqlMessage)
-                data = {
-                    data_input : {
-                        invoice_no: error.parameters[0],
-                        item_name: error.parameters[1],
-                        quantity: error.parameters[2],
-                        total_cost_of_good_sold: error.parameters[3],
-                        total_price_sold: error.parameters[4],
-                    },
-                    log_error:[]
-                }
-                data.log_error = log;
-                dataErrorProduct.push(data);
-                return;
-            }
-          })],
+        }),
       );
+
+      await Promise.all(
+        jsonDataProducts.map(async (productData: any, index: number ,arr: any[]) => {
+          try {
+            const product = await Products.create(productData, {validate: false});
+            dataSuccessProduct.push(product)
+            return ;
+          } catch (error:any) {
+              console.log(error);
+            let data = {
+                data_input: {},
+                log_error: <any>[],
+              };
+              let log: any[] = [];
+              log.push(error.parent.sqlMessage)
+              data = {
+                  data_input : {
+                      invoice_no: error.parameters[0],
+                      item_name: error.parameters[1],
+                      quantity: error.parameters[2],
+                      total_cost_of_good_sold: error.parameters[3],
+                      total_price_sold: error.parameters[4],
+                  },
+                  log_error:[]
+              }
+              data.log_error = log;
+              dataErrorProduct.push(data);
+              return;
+          }
+        })
+      )
 
       res.json({
         invoice: {
